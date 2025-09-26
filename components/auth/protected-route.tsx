@@ -3,6 +3,7 @@
 import type React from "react"
 import { useEffect, useState } from "react"
 import { useApp } from "@/contexts/app-context"
+import { authAPI } from "@/lib/api"
 import { Loader2 } from "lucide-react"
 
 interface ProtectedRouteProps {
@@ -27,20 +28,13 @@ export function ProtectedRoute({ children, requiredRole, fallback }: ProtectedRo
       // If user is not in state but token exists, restore user session
       if (!state.user) {
         try {
-          // Mock user restoration - replace with real API call
-          await new Promise((resolve) => setTimeout(resolve, 500))
+          // Call real API to get user profile
+          const response = await authAPI.getProfile()
+          const { user } = response.data
 
-          const mockUser = {
-            id: "1",
-            email: "user@example.com",
-            name: "User",
-            role: "student" as const,
-            avatar: "/placeholder.svg?height=40&width=40",
-            createdAt: new Date(),
-          }
-
-          dispatch({ type: "SET_USER", payload: mockUser })
+          dispatch({ type: "SET_USER", payload: user })
         } catch (error) {
+          // Token is invalid or expired, remove it
           localStorage.removeItem("authToken")
         }
       }

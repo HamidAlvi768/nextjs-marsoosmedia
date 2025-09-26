@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { useApp } from "@/contexts/app-context"
+import { blogAPI } from "@/lib/api"
 import { DataTable } from "@/components/reusable/data-table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -21,9 +22,15 @@ export default function AdminBlogPage() {
     window.location.href = `/blog/${post.id}`
   }
 
-  const handleDelete = (post: any) => {
+  const handleDelete = async (post: any) => {
     if (window.confirm(`Are you sure you want to delete "${post.title}"?`)) {
-      dispatch({ type: "DELETE_BLOG_POST", payload: post.id })
+      try {
+        await blogAPI.delete(post.id)
+        dispatch({ type: "DELETE_BLOG_POST", payload: post.id })
+      } catch (error) {
+        console.error("Failed to delete blog post:", error)
+        alert("Failed to delete blog post. Please try again.")
+      }
     }
   }
 

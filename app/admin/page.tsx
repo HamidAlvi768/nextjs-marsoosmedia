@@ -68,7 +68,7 @@ export default function AdminDashboard() {
                     <div key={enrollment.id} className="flex items-center justify-between">
                       <div>
                         <p className="font-medium">{course?.title || "Unknown Course"}</p>
-                        <p className="text-sm text-muted-foreground">{enrollment.enrolledAt.toLocaleDateString()}</p>
+                        <p className="text-sm text-muted-foreground">{new Date(enrollment.enrolledAt).toLocaleDateString()}</p>
                       </div>
                       <Badge variant="secondary">${course?.price || 0}</Badge>
                     </div>
@@ -100,7 +100,7 @@ export default function AdminDashboard() {
                         <Badge variant={post.isPublished ? "default" : "secondary"}>
                           {post.isPublished ? "Published" : "Draft"}
                         </Badge>
-                        <span className="text-sm text-muted-foreground">{post.updatedAt.toLocaleDateString()}</span>
+                        <span className="text-sm text-muted-foreground">{new Date(post.updatedAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-1">
@@ -143,7 +143,7 @@ export default function AdminDashboard() {
                         <div className="flex items-center space-x-2 mb-1">
                           <span className="font-medium text-sm">{comment.userName}</span>
                           <span className="text-xs text-muted-foreground">
-                            {comment.createdAt.toLocaleDateString()}
+                            {new Date(comment.createdAt).toLocaleDateString()}
                           </span>
                         </div>
                         <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{comment.content}</p>

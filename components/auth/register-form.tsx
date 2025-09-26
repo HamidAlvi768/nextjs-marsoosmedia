@@ -10,10 +10,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useApp } from "@/contexts/app-context"
+import { authAPI } from "@/lib/api"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export function RegisterForm() {
   const { dispatch } = useApp()
+  const router = useRouter()
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -56,29 +59,35 @@ export function RegisterForm() {
     setError("")
 
     try {
-      // Mock registration - replace with real API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Mock user data
-      const mockUser = {
-        id: Date.now().toString(),
-        email: formData.email,
+      // Call real API
+      const response = await authAPI.register({
         name: formData.name,
-        role: formData.role as "admin" | "student" | "instructor",
-        avatar: "/placeholder.svg?height=40&width=40",
-        createdAt: new Date(),
-      }
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+      })
+
+      const { user, token } = response.data
 
       // Store auth token
-      localStorage.setItem("authToken", "mock-jwt-token")
+      localStorage.setItem("authToken", token)
 
       // Update global state
-      dispatch({ type: "SET_USER", payload: mockUser })
+      dispatch({ type: "SET_USER", payload: user })
 
       // Redirect to dashboard
-      window.location.href = "/dashboard"
-    } catch (err) {
-      setError("Registration failed. Please try again.")
+      router.push("/dashboard")
+    } catch (err: any) {
+      // Handle API errors
+      if (err.response?.data?.error) {
+        setError(err.response.data.error)
+      } else if (err.response?.status === 400) {
+        setError("Invalid registration data. Please check your inputs.")
+      } else if (err.response?.status === 409) {
+        setError("An account with this email already exists.")
+      } else {
+        setError("Registration failed. Please try again.")
+      }
     } finally {
       setLoading(false)
     }

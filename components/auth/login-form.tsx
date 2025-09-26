@@ -9,10 +9,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useApp } from "@/contexts/app-context"
+import { authAPI } from "@/lib/api"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export function LoginForm() {
   const { dispatch } = useApp()
+  const router = useRouter()
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -33,33 +36,34 @@ export function LoginForm() {
     setError("")
 
     try {
-      // Mock authentication - replace with real API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Call real API
+      const response = await authAPI.login(formData.email, formData.password)
 
-      // Mock user data
-      const mockUser = {
-        id: "1",
-        email: formData.email,
-        name: formData.email.split("@")[0],
-        role: formData.email.includes("admin") ? ("admin" as const) : ("student" as const),
-        avatar: "/placeholder.svg?height=40&width=40",
-        createdAt: new Date(),
-      }
+      const { user, token } = response.data
 
       // Store auth token
-      localStorage.setItem("authToken", "mock-jwt-token")
+      localStorage.setItem("authToken", token)
 
       // Update global state
-      dispatch({ type: "SET_USER", payload: mockUser })
+      dispatch({ type: "SET_USER", payload: user })
 
       // Redirect based on role
-      if (mockUser.role === "admin") {
-        window.location.href = "/admin"
+      if (user.role === "admin") {
+        router.push("/admin")
       } else {
-        window.location.href = "/dashboard"
+        router.push("/dashboard")
       }
-    } catch (err) {
-      setError("Invalid email or password")
+    } catch (err: any) {
+      // Handle API errors
+      if (err.response?.data?.error) {
+        setError(err.response.data.error)
+      } else if (err.response?.status === 401) {
+        setError("Invalid email or password")
+      } else if (err.response?.status === 400) {
+        setError("Please check your email and password format")
+      } else {
+        setError("Login failed. Please try again.")
+      }
     } finally {
       setLoading(false)
     }

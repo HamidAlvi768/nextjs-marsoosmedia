@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { useAppContext } from "@/contexts/app-context"
+import { coursesAPI } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -25,20 +26,11 @@ export function EnrollmentButton({ courseId, className, size = "default" }: Enro
 
     setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Call real API
+      const response = await coursesAPI.enroll(courseId)
+      const { enrollment } = response.data
 
-      const newEnrollment = {
-        id: Date.now().toString(),
-        userId: state.currentUser.id,
-        courseId,
-        progress: 0,
-        completedLessons: [],
-        enrolledAt: new Date(),
-        status: "in-progress" as const,
-      }
-
-      dispatch({ type: "ADD_ENROLLMENT", payload: newEnrollment })
+      dispatch({ type: "ADD_ENROLLMENT", payload: enrollment })
     } catch (error) {
       console.error("Enrollment failed:", error)
     } finally {

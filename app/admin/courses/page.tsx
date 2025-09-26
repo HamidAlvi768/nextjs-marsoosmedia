@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { useApp } from "@/contexts/app-context"
+import { coursesAPI } from "@/lib/api"
 import { DataTable } from "@/components/reusable/data-table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -23,9 +24,15 @@ export default function AdminCoursesPage() {
     window.location.href = `/courses/${course.id}`
   }
 
-  const handleDelete = (course: any) => {
+  const handleDelete = async (course: any) => {
     if (window.confirm(`Are you sure you want to delete "${course.title}"?`)) {
-      dispatch({ type: "DELETE_COURSE", payload: course.id })
+      try {
+        await coursesAPI.delete(course.id)
+        dispatch({ type: "DELETE_COURSE", payload: course.id })
+      } catch (error) {
+        console.error("Failed to delete course:", error)
+        alert("Failed to delete course. Please try again.")
+      }
     }
   }
 

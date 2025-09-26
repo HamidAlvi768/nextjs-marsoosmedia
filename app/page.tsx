@@ -142,7 +142,7 @@ export default function HomePage() {
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <Badge variant="secondary">{post.category}</Badge>
-                        <span className="text-sm text-muted-foreground">{post.publishedAt.toLocaleDateString()}</span>
+                        <span className="text-sm text-muted-foreground">{new Date(post.publishedAt).toLocaleDateString()}</span>
                       </div>
                       <h3 className="font-semibold text-lg line-clamp-2 text-balance">{post.title}</h3>
                       <p className="text-muted-foreground text-sm line-clamp-3">{post.excerpt}</p>

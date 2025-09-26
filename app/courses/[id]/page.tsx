@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { useApp } from "@/contexts/app-context"
+import { coursesAPI } from "@/lib/api"
 import { Clock, Users, Star, BookOpen, Play, CheckCircle } from "lucide-react"
 import Link from "next/link"
 
@@ -39,16 +40,15 @@ export default function CourseDetailPage() {
       return
     }
 
-    const newEnrollment = {
-      id: Date.now().toString(),
-      userId: state.user.id,
-      courseId: course.id,
-      progress: 0,
-      completedLessons: [],
-      enrolledAt: new Date(),
-    }
+    try {
+      // Call real API
+      const response = await coursesAPI.enroll(course.id)
+      const { enrollment } = response.data
 
-    dispatch({ type: "ADD_ENROLLMENT", payload: newEnrollment })
+      dispatch({ type: "ADD_ENROLLMENT", payload: enrollment })
+    } catch (error) {
+      console.error("Enrollment failed:", error)
+    }
   }
 
   const getLevelColor = (level: string) => {
